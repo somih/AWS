@@ -1,0 +1,145 @@
+Parameters:
+  DomainName:
+    Type: String
+    Default: webspark.test
+    Description: The DNS name of an existing Amazon Route 53 hosted zone
+  BucketName:
+    Type: String
+    Default: websparktestbucket
+    Description: Amazon S3 files bucket name
+  HostedZoneId:
+    Type: String
+    Default: 2354iyn3ok5ny134t
+    Description: Amazon Route53 Hosted Zone Id for DomainName
+  CertificateArn:
+    Type: String
+    Default: 'rtghnetlmnnetplnma[petrmnfpaeormn'
+    Description: Certificate Link
+#===================================================
+Resources:
+  WSTBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: websparktestbucket
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: b19eb0c2-b984-4548-b1cd-b0b0a7bcc360
+#---------------------------------------------------        
+  WSTBucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action:
+              - 's3:GetObject'
+            Resource: !Sub 'arm:aws:s3:::${WSTBucket}/*'
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 17ed1fd0-44c2-4f52-94ba-ff0bf6898c83
+#---------------------------------------------------        
+  WSTHostedZone:
+    Type: AWS::Route53::HostedZone
+    Properties: 
+      HostedZoneConfig: 
+        Comment: 'My hosted zone for example.com'
+      Name: 'wsthosted.zone'
+      HostedZoneTags: 
+        - HostedZoneTag
+      QueryLoggingConfig: QueryLoggingConfig
+      HostedZoneTags: 
+        - 
+          Key: 'WSTKey1'
+          Value: 'WSTValue1'
+        - 
+          Key: 'WSTKey2'
+          Value: 'WSTValue2'
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 9e72bb63-2a8d-450f-8a02-11a6ac963e61
+#---------------------------------------------------        
+  WSTCloudFront:
+    Type: 'AWS::CloudFront::Distribution'
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultRootObject: index.html
+        PriceClass: PriceClass_All
+        CacheBehaviors:
+          - TargetOriginId: elbhtlbetaelb
+            PathPattern: /app*
+            ViewerProtocolPolicy: allow-all
+            MinTTL: 0
+            CachedMethods:
+              - HEAD
+              - GET
+        DefaultCacheBehavior:
+          TargetOriginId: s3htlbeta
+          ViewerProtocolPolicy: allow-all
+          MinTTL: 0
+          CachedMethods:
+            - HEAD
+            - GET
+        Origins:
+          - DomainName: webspt3bucket
+            Id: s3htlbeta
+        Restrictions:
+          GeoRestriction:
+            RestrictionType: none
+            Locations: []
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: 'true'
+          MinimumProtocolVersion: TLSv1
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: ebd3c6a5-c832-4a2a-8a65-5d76564822c7
+#===================================================
+Metadata:
+  'AWS::CloudFormation::Designer':
+    b19eb0c2-b984-4548-b1cd-b0b0a7bcc360:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 70
+        'y': 110
+      z: 2
+      parent: 9e72bb63-2a8d-450f-8a02-11a6ac963e61
+      embeds: []
+    17ed1fd0-44c2-4f52-94ba-ff0bf6898c83:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: -10
+        'y': 110
+      z: 2
+      parent: 9e72bb63-2a8d-450f-8a02-11a6ac963e61
+      embeds: []
+    ebd3c6a5-c832-4a2a-8a65-5d76564822c7:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: -100
+        'y': 110
+      z: 2
+      parent: 9e72bb63-2a8d-450f-8a02-11a6ac963e61
+      embeds: []
+    9e72bb63-2a8d-450f-8a02-11a6ac963e61:
+      size:
+        width: 390
+        height: 180
+      position:
+        x: -140
+        'y': 60
+      z: 1
+      embeds:
+        - 17ed1fd0-44c2-4f52-94ba-ff0bf6898c83
+        - ebd3c6a5-c832-4a2a-8a65-5d76564822c7
+        - b19eb0c2-b984-4548-b1cd-b0b0a7bcc360
+#===================================================
+Outputs:
+  WSTCloudFront:
+    Value: id
